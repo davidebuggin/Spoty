@@ -26,9 +26,9 @@ struct Album {
 #[derive(Serialize, Deserialize, Debug)]
 struct Track {
     name: String,
+    album: Album,
     href: String,
     popularity: u32,
-    album: Album,
     external_urls: ExternalUrls,
 }
 #[derive(Serialize, Deserialize, Debug)]
@@ -40,7 +40,7 @@ struct APIResponse {
     tracks: Items<Track>,
 }
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+
 struct Cli {
     #[arg(short, long, value_name = "TOKEN")]
     token: String,
@@ -106,6 +106,41 @@ async fn main() {
     };
 }
 
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_tracks() {
+        let test_track = Track {
+            name : "Song".to_string(),
+            album : Album {
+                name : "Album".to_string(),
+                artists : vec![Artist{
+                    name : "Artist".to_string(),
+                    external_urls : ExternalUrls { 
+                        spotify: "http://example.com".to_string(),
+                    }
+                }],
+                external_urls : ExternalUrls { 
+                    spotify: "http://example.com".to_string(), 
+                },
+            },
+            href: "http://example.com".to_string(),
+            popularity: 1,
+            external_urls: ExternalUrls { 
+                spotify: "http://example.com".to_string(), 
+            },
+        };
+        let tracks_vec = vec![&test_track];
+
+        let result = tracks(tracks_vec);
+
+        assert!(result.contains("Song"));
+        assert!(result.contains("Album"));
+        assert!(result.contains("Artist"));
+        assert!(result.contains("http:://example.com"));
+    }
+}
 
 
-//cargo run -- --token <token> --artist "<nomeartista>" 
+//cargo run -- --token <token> --artist "<nomeartista>"
