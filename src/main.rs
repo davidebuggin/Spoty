@@ -43,9 +43,31 @@ struct APIResponse {
 #[command(version, about, long_about = None)]
 struct Cli {
     #[arg(short, long, value_name = "TOKEN")]
-    token : String,
+    token: String,
     #[arg(short, long, value_name = "ARTIST")]
-    artist : String,
+    artist: String,
+}
+
+fn tracks(tracks: Vec<&Track>) -> String {
+    let mut result = String::new();
+
+    for track in tracks {
+        result.push_str(&format!("🎶 TITLE: {} \n", track.name));
+        result.push_str(&format!("💿 ALBUM: {} \n" , track.album.name));
+        result.push_str(&format!(
+            "🕺 ARTIST: {} \n",
+            track
+                .album
+                .artists
+                .iter()
+                .map(|artist| artist.name.to_string())
+                .collect::<String>()
+        ));
+        result.push_str(&format!("🌎 LINK:{} \n", track.external_urls.spotify));
+        result.push_str(&format!("------------------------------------------------------------------------------------------------------- \n"));
+    }
+
+    result
 }
 
 #[tokio::main]
@@ -59,7 +81,7 @@ async fn main() {
     let client = reqwest::Client::new();
     let response = client
         .get(url)
-        .header(AUTHORIZATION, format!("Bearer {}" , cli.token))
+        .header(AUTHORIZATION, format!("Bearer {}", cli.token))
         .header(CONTENT_TYPE, "application/json")
         .header(ACCEPT, "application/json")
         .send()
@@ -68,7 +90,10 @@ async fn main() {
     match response.status() {
         reqwest::StatusCode::OK => {
             match response.json::<APIResponse>().await {
-                Ok(parsed) => print_tracks(parsed.tracks.items.iter().collect()),
+                Ok(parsed) => {
+                    let tracks_string = tracks(parsed.tracks.items.iter().collect());
+                    println!("{}", tracks_string);
+                }    
                 Err(_) => println!("The response didn't match the shape we expected."),
             };
         }
@@ -83,25 +108,4 @@ async fn main() {
 
 
 
-
-
-
-
-
-fn print_tracks(tracks: Vec<&Track>) {
-    for track in tracks {
-        println!("🔥 {}", track.name);
-        println!("💿 {}", track.album.name);
-        println!(
-            "🕺 {}",
-            track
-                .album
-                .artists
-                .iter()
-                .map(|artist| artist.name.to_string())
-                .collect::<String>()
-        );
-        println!("🌎 {}", track.external_urls.spotify);
-        println!("---------")
-    }
-}
+//cargo run -- --token <token> --artist "<nomeartista>" 
