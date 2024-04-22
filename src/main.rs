@@ -48,7 +48,7 @@ struct Cli {
     artist: String,
 }
 
-fn tracks(tracks: Vec<&Track>) -> String {
+fn tracks(tracks: Vec<Track>) -> String {
     let mut result = String::new();
 
     for track in tracks {
@@ -92,7 +92,7 @@ async fn main() {
         reqwest::StatusCode::OK => {
             match response.json::<APIResponse>().await {
                 Ok(parsed) => {
-                    let tracks_string = tracks(parsed.tracks.items.iter().collect());
+                    let tracks_string = tracks(parsed.tracks.items);
                     println!("{}", tracks_string);
                 }    
                 Err(_) => println!("The response didn't match the shape we expected."),
@@ -139,11 +139,12 @@ mod test {
                 spotify: "http://example.com".to_string(), 
             },
         };
-        let tracks_vec = vec![&test_track];
 
-        let result = tracks(tracks_vec);
+        let result = tracks(vec![test_track]);
 
-        assert!(result.contains("🎶 TITLE: Song \n💿 ALBUM: Album \n🕺 ARTIST: Artist 1, Artist 2 \n🌎 LINK: http://example.com "));
+        let expected_result = "🎶 TITLE: Song \n💿 ALBUM: Album \n🕺 ARTIST: Artist 1, Artist 2 \n🌎 LINK: http://example.com \n------------------------------------------------------------------------------------------------------- \n"; 
+
+        assert_eq!(result , expected_result);
     }
 }
 
