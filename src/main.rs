@@ -61,7 +61,8 @@ fn tracks(tracks: Vec<&Track>) -> String {
                 .artists
                 .iter()
                 .map(|artist| artist.name.to_string())
-                .collect::<String>()
+                .collect::<Vec<String>>()
+                .join(", ")
         ));
         result.push_str(&format!("🌎 LINK: {} \n", track.external_urls.spotify));
         result.push_str(&format!("------------------------------------------------------------------------------------------------------- \n"));
@@ -115,12 +116,19 @@ mod test {
             name : "Song".to_string(),
             album : Album {
                 name : "Album".to_string(),
-                artists : vec![Artist{
-                    name : "Artist".to_string(),
-                    external_urls : ExternalUrls { 
-                        spotify: "http://example.com".to_string(),
-                    }
-                }],
+                artists : vec![
+                    Artist{
+                        name : "Artist 1".to_string(),
+                        external_urls : ExternalUrls { 
+                            spotify: "http://example.com".to_string(),
+                        }
+                    },
+                    Artist{
+                        name : "Artist 2".to_string(),
+                        external_urls : ExternalUrls { 
+                            spotify: "http://example.com".to_string(),
+                        }
+                    }],
                 external_urls : ExternalUrls { 
                     spotify: "http://example.com".to_string(), 
                 },
@@ -135,7 +143,7 @@ mod test {
 
         let result = tracks(tracks_vec);
 
-        assert!(result.contains("🎶 TITLE: Song \n💿 ALBUM: Album \n🕺 ARTIST: Artist \n🌎 LINK: http://example.com "));
+        assert!(result.contains("🎶 TITLE: Song \n💿 ALBUM: Album \n🕺 ARTIST: Artist 1, Artist 2 \n🌎 LINK: http://example.com "));
     }
 }
 
