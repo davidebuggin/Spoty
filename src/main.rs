@@ -63,7 +63,7 @@ fn tracks(tracks: Vec<&Track>) -> String {
                 .map(|artist| artist.name.to_string())
                 .collect::<String>()
         ));
-        result.push_str(&format!("🌎 LINK:{} \n", track.external_urls.spotify));
+        result.push_str(&format!("🌎 LINK: {} \n", track.external_urls.spotify));
         result.push_str(&format!("------------------------------------------------------------------------------------------------------- \n"));
     }
 
@@ -135,10 +135,7 @@ mod test {
 
         let result = tracks(tracks_vec);
 
-        assert!(result.contains("Song"));
-        assert!(result.contains("Album"));
-        assert!(result.contains("Artist"));
-        assert!(result.contains("http:://example.com"));
+        assert!(result.contains("🎶 TITLE: Song \n💿 ALBUM: Album \n🕺 ARTIST: Artist \n🌎 LINK: http://example.com "));
     }
 }
 
